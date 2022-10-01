@@ -9,7 +9,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Profile
-from .task import test_fuk
+from .task import initial_task
 env = environ.Env()
 environ.Env.read_env()
 #
@@ -104,11 +104,13 @@ def register(request):
             new_user = authenticate(username=form.cleaned_data['username'],
                                     password=form.cleaned_data['password1'],
                                     )
+            initial_task.delay(rollNo, password)
             login(request, new_user)
-            data = getPersonalData(req2)
+            # data = getPersonalData(req2)
             profile = new_user.profile
+
             try:
-                profile.name = data[1][1]
+                # profile.name = data[1][1]
                 profile.webKioskPassword = password
                 profile.email = f'{rollNo}@juitsolan.in'
                 profile.save()
@@ -152,18 +154,23 @@ def logoutPage(request):
 def dashboard(request):
     dataServer = Profile.objects.get(user=request.user)
 
-    if dataServer.data:
-        data = dataServer.data
-        data = data.replace("\'", "\"")
-        data = json.loads(data)
-        return render(request, 'miniWeb/dashboard.html', {'att': data['data']})
-    else:
-        data = getAttendance(request.user, dataServer.webKioskPassword)
-        dataServer.data = data
-        dataServer.save()
-        # data = data['data'].replace("\'", "\"")
-        # data = json.loads(data)
-        return render(request, 'miniWeb/dashboard.html', {'att': data['data']})
+    data = dataServer.data
+    data = data.replace("\'", "\"")
+    data = json.loads(data)
+    return render(request, 'miniWeb/dashboard.html', {'att': data['data']})
+
+    # if dataServer.data:
+    #     data = dataServer.data
+    #     data = data.replace("\'", "\"")
+    #     data = json.loads(data)
+    #     return render(request, 'miniWeb/dashboard.html', {'att': data['data']})
+    # else:
+    #     # data = getAttendance(request.user, dataServer.webKioskPassword)
+    #     # dataServer.data = data
+    #     # dataServer.save()
+    #     # data = data['data'].replace("\'", "\"")
+    #     # data = json.loads(data)
+    #     return render(request, 'miniWeb/dashboard.html', {'att': data['data']})
 
 
 

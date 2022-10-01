@@ -1,9 +1,10 @@
 from celery import shared_task
-from .models import dataAtten
+from .models import Profile
 from bs4 import BeautifulSoup
 import environ
 import requests
 import json
+from django.contrib.auth.models import User
 
 env = environ.Env()
 environ.Env.read_env()
@@ -33,11 +34,11 @@ def getData(req):
     return data
 
 
-def getAttendance():
+def getAttendance(rollNo, password):
     r = requests.Session()
-    print(env('ROLLNO'))
-    rollNo = env('ROLLNO')
-    password =  env('PASSWORD')
+    # print(env('ROLLNO'))
+    # rollNo = env('ROLLNO')
+    # password =  env('PASSWORD')
 
     req1 = r.post(
         f'https://webkiosk.juit.ac.in:9443/CommonFiles/UserAction.jsp?txtInst=Institute&InstCode=JUIT&txtuType=Member+Type&UserType=S&txtCode=Enrollment+No&MemberCode={rollNo}&txtPin=Password%2FPin&Password={password}&BTNSubmit=Submit')
@@ -53,15 +54,13 @@ def getAttendance():
 
 
 @shared_task(bind=True)
-def test_fuk(self):
-    try:
-        dataObj = dataAtten.objects.get(username = env('ROLLNO'))
-    except dataAtten.DoesNotExist:
-        dataObj = None
+def initial_task(self, rollNo, password):
 
-    if dataObj:
-        dataFetch = getAttendance()
-        dataObj.data = dataFetch
-        dataObj.save()
+    # dataObj = Profile.objects.get(user = user)
+
+    dataObj = User.objects.get(username=rollNo)
+    dataFetch = getAttendance(rollNo, password)
+    dataObj.profile.data = dataFetch
+    dataObj.profile.save()
 
     return "DOne"
