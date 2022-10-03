@@ -63,4 +63,21 @@ def initial_task(self, rollNo, password):
     dataObj.profile.data = dataFetch
     dataObj.profile.save()
 
-    return "DOne"
+    return f'Done Fetching Attendance for {rollNo}'
+
+@shared_task(bind=True)
+def automaticScheduled(self):
+
+    users = User.objects.all()
+
+    for user in users:
+        try:
+            rollNo = user.username
+            password = user.profile.webKioskPassword
+            dataFetch = getAttendance(rollNo, password)
+            user.profile.data = dataFetch
+            user.profile.save()
+        except:
+            print(f'Cannot able to update for {user.username}')
+
+    return f'Done Fetching Attendance'

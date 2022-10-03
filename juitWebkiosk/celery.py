@@ -1,13 +1,20 @@
 import os
 
 from celery import Celery
-
+from celery.schedules import crontab
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'juitWebkiosk.settings')
 
 app = Celery('juitWebkiosk')
 app.conf.beat_schedule = {
-
+    'update-att-at-11-everyday': {
+        'task': 'miniWeb.task.automaticScheduled',
+        'schedule': crontab(hour=11, minute=0)
+    },
+    'test': {
+        'task': 'miniWeb.task.automaticScheduled',
+        'schedule': crontab(hour=14, minute=34)
+    }
 }
 app.conf.enable_utc = False
 app.conf.update(timezone = 'Asia/Kolkata')
