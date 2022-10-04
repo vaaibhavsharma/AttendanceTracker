@@ -155,6 +155,8 @@ def dashboard(request):
     dataServer = Profile.objects.get(user=request.user)
 
     data = dataServer.data
+    if data == None:
+        return render(request, 'miniWeb/dashboard.html', {'att': "NO"})
     data = data.replace("\'", "\"")
     data = json.loads(data)
     return render(request, 'miniWeb/dashboard.html', {'att': data['data']})

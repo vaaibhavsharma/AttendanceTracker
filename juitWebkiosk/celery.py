@@ -11,9 +11,13 @@ app.conf.beat_schedule = {
         'task': 'miniWeb.task.automaticScheduled',
         'schedule': crontab(hour=11, minute=0)
     },
-    'test': {
+    'update-att-at-2-everyday': {
         'task': 'miniWeb.task.automaticScheduled',
-        'schedule': crontab(hour=14, minute=34)
+        'schedule': crontab(hour=13, minute=0)
+    },
+    'update-att-at-4-everyday': {
+        'task': 'miniWeb.task.automaticScheduled',
+        'schedule': crontab(hour=16, minute=0)
     }
 }
 app.conf.enable_utc = False
